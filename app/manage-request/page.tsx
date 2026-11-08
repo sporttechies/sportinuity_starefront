@@ -8,12 +8,20 @@ import {
   getTeamToken,
   getTeamUser,
 } from "../lib/api";
+import SiteHeader from "../components/site-header";
+import SiteFooter from "../components/site-footer";
+import PageHero from "../components/page-hero";
+
 export default function ManageRequestPage() {
   const [id, setId] = useState("");
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
-  const user = getTeamUser();
+  // Read the stored user after mount so server and client markup match.
+  const [user, setUser] = useState<ReturnType<typeof getTeamUser> | null>(null);
+  useEffect(() => {
+    setUser(getTeamUser());
+  }, []);
   useEffect(() => {
     if (!getTeamToken())
       setError("Sign in to your team account to manage requests.");
@@ -37,82 +45,93 @@ export default function ManageRequestPage() {
     }
   }
   return (
-    <main className="min-h-screen bg-[#f4f7f8] text-[#102331]">
-      <header className="flex items-center justify-between bg-white px-5 py-4 shadow-sm sm:px-12">
-        <Link href="/" className="text-xl font-black text-[#007cc2]">
-          Sportinuity
-        </Link>
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-[#f4f7f8] text-[#102331]">
+      <SiteHeader />
+
+      <main>
+        <PageHero kicker="Team travel desk" title="Manage your request">
           {user && (
-            <span className="hidden text-sm font-semibold sm:inline">
-              {user.teamName}
-            </span>
-          )}
-          <Link href="/" className="text-sm font-bold text-[#007cc2]">
-            Back home
-          </Link>
-        </div>
-      </header>
-      <section className="mx-auto max-w-xl px-5 py-20">
-        <p className="font-bold uppercase tracking-widest text-[#17633e]">
-          Team travel desk
-        </p>
-        <h1 className="mt-3 text-4xl font-black">Manage your request</h1>
-        {!ready ? (
-          <div className="mt-8 rounded-2xl bg-white p-7 shadow-sm">
-            <p className="font-semibold">
-              {error || "Checking your team account…"}
+            <p>
+              Signed in as{" "}
+              <strong className="font-bold text-[#d0ee27]">
+                {user.teamName}
+              </strong>
             </p>
-            <Link
-              href="/team-login"
-              className="mt-5 inline-block font-bold text-[#007cc2]"
+          )}
+        </PageHero>
+
+        <section className="relative z-10 mx-auto -mt-12 max-w-2xl px-4 sm:-mt-16 sm:px-9">
+          {!ready ? (
+            <div className="rounded-2xl bg-white p-7 shadow-xl">
+              <p className="text-lg font-semibold">
+                {error || "Checking your team account…"}
+              </p>
+              <Link
+                href="/team-login"
+                className="mt-5 inline-block font-bold text-[#007cc2] hover:underline"
+              >
+                Go to team login →
+              </Link>
+            </div>
+          ) : (
+            <form
+              onSubmit={submit}
+              className="rounded-2xl bg-[#007cc2] p-5 shadow-2xl sm:p-7"
             >
-              Go to team login →
-            </Link>
-          </div>
-        ) : (
-          <form
-            onSubmit={submit}
-            className="mt-8 rounded-2xl bg-white p-6 shadow-sm"
-          >
-            <label className="text-sm font-bold">
-              Request reference
-              <input
-                required
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                placeholder="SL-1049"
-                className="mt-2 h-12 w-full rounded-xl border px-3 outline-none focus:ring-2 focus:ring-[#007cc2]"
-              />
-            </label>
-            <button className="mt-5 w-full rounded-xl bg-[#007cc2] py-3 font-bold text-white">
-              Find request
-            </button>
-            {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-            {result && (
-              <div className="mt-5 rounded-xl bg-[#e8f4fb] p-4 text-sm">
-                <p className="font-bold">{result.data.team}</p>
-                <p>
-                  {result.data.location} · {result.data.people} travellers
+              <label className="block text-sm font-bold text-white">
+                Request reference
+                <input
+                  required
+                  value={id}
+                  onChange={(e) => setId(e.target.value)}
+                  placeholder="SL-1049"
+                  className="mt-2 h-14 w-full rounded-xl bg-white px-4 text-base font-semibold text-[#102331] outline-none transition placeholder:font-medium placeholder:text-slate-400 focus:ring-4 focus:ring-[#d0ee27]/60"
+                />
+              </label>
+              <button
+                type="submit"
+                className="mt-4 h-14 w-full rounded-xl bg-[#d0ee27] text-lg font-black uppercase tracking-wide text-[#25370d] transition hover:bg-[#c1df1b] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60 active:scale-[0.99]"
+              >
+                Find request
+              </button>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="mt-4 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-red-700"
+                >
+                  {error}
                 </p>
-                <p className="mt-2 font-semibold text-[#007cc2]">
-                  {result.data.status}
-                </p>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => {
-                clearTeamSession();
-                location.reload();
-              }}
-              className="mt-5 text-sm font-bold text-slate-500"
-            >
-              Sign out
-            </button>
-          </form>
-        )}
-      </section>
-    </main>
+              )}
+
+              {result && (
+                <div className="mt-5 rounded-xl bg-white p-5 text-[#102331]">
+                  <p className="text-lg font-black">{result.data.team}</p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    {result.data.location} · {result.data.people} travellers
+                  </p>
+                  <p className="mt-3 inline-flex rounded-full bg-[#e8f4fb] px-3 py-1 text-sm font-semibold text-[#007cc2]">
+                    {result.data.status}
+                  </p>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  clearTeamSession();
+                  location.reload();
+                }}
+                className="mt-5 text-sm font-bold text-white/80 underline-offset-4 transition hover:text-white hover:underline"
+              >
+                Sign out
+              </button>
+            </form>
+          )}
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

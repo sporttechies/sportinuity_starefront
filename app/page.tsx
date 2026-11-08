@@ -2,21 +2,125 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import {
+  Building2,
   CalendarDays,
   ChevronDown,
   MapPin,
-  Menu,
+  Plane,
+  ShieldCheck,
   Users,
-  X,
+  type LucideIcon,
 } from "lucide-react";
 import DateRangePicker from "./components/date-range-picker";
 import TravellerPicker from "./components/traveller-picker";
+import SiteHeader from "./components/site-header";
+import SiteFooter from "./components/site-footer";
+
+type CardVariant = "blue" | "green" | "dark";
+
+const serviceCards: {
+  href: string;
+  kicker: string;
+  title: string;
+  body: string;
+  cta: string;
+  icon: LucideIcon;
+  variant: CardVariant;
+}[] = [
+  {
+    href: "/services",
+    kicker: "Team travel",
+    title: "Travel for teams",
+    body: "Group flights and coordinated itineraries built around your match schedule.",
+    cta: "Explore services →",
+    icon: Plane,
+    variant: "blue",
+  },
+  {
+    href: "/services",
+    kicker: "On the ground",
+    title: "Complete logistics",
+    body: "Accommodation, airport transfers, meals and local transport in one place.",
+    cta: "View support →",
+    icon: Building2,
+    variant: "green",
+  },
+  {
+    href: "/travel-info",
+    kicker: "Guidance",
+    title: "Travel with confidence",
+    body: "Practical guidance for teams travelling across Africa and beyond.",
+    cta: "Travel info →",
+    icon: ShieldCheck,
+    variant: "dark",
+  },
+];
+
+const cardStyles: Record<
+  CardVariant,
+  {
+    card: string;
+    blob: string;
+    icon: string;
+    kicker: string;
+    body: string;
+    cta: string;
+  }
+> = {
+  blue: {
+    card: "bg-white border border-slate-200",
+    blob: "bg-[#e8f4fb]",
+    icon: "bg-[#e8f4fb] text-[#007cc2]",
+    kicker: "text-[#007cc2]",
+    body: "text-slate-500",
+    cta: "text-[#007cc2]",
+  },
+  green: {
+    card: "bg-white border border-slate-200",
+    blob: "bg-[#eaf5ee]",
+    icon: "bg-[#eaf5ee] text-[#17633e]",
+    kicker: "text-[#17633e]",
+    body: "text-slate-500",
+    cta: "text-[#17633e]",
+  },
+  dark: {
+    card: "bg-[#102331] text-white",
+    blob: "bg-white/5",
+    icon: "bg-white/10 text-[#d0ee27]",
+    kicker: "text-[#d0ee27]",
+    body: "text-slate-300",
+    cta: "text-[#d0ee27]",
+  },
+};
+
+const quickLinks = [
+  {
+    href: "/manage-request",
+    title: "Manage your request",
+    body: "Check on a request you've already submitted.",
+  },
+  {
+    href: "/travel-info",
+    title: "Travel info",
+    body: "Practical guidance for teams travelling across Africa and beyond.",
+  },
+  {
+    href: "/services",
+    title: "Sports services",
+    body: "Accommodation, airport transfers, meals and local transport in one place.",
+  },
+  {
+    href: "/team-login",
+    title: "Team login",
+    body: "Sign in to your team account.",
+  },
+];
+
+const fieldHeight = "h-[68px] sm:h-[72px]";
 
 export default function Page() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [datesOpen, setDatesOpen] = useState(false);
   const [travellersOpen, setTravellersOpen] = useState(false);
   const [dates, setDates] = useState({ departure: "", returnDate: "" });
@@ -28,6 +132,7 @@ export default function Page() {
   const [formError, setFormError] = useState("");
   const router = useRouter();
   const total = travellers.adults + travellers.children + travellers.infants;
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -47,235 +152,297 @@ export default function Page() {
     });
     router.push(`/request-details?${params.toString()}`);
   }
+
   return (
-    <main className="min-h-screen bg-[#f4f7f8] text-[#102331]">
-      <header className="relative z-30 flex h-20 items-center justify-between bg-white px-5 shadow-sm sm:px-10 lg:px-16">
-        <Link href="/" aria-label="Sportinuity home">
-          <Image
-            src="/st_logo.png"
-            alt="Sportinuity"
-            width={170}
-            height={72}
-            className="h-14 w-auto object-contain"
-            priority
-          />
-        </Link>
-        <nav className="hidden items-center gap-9 text-sm font-bold uppercase md:flex">
-          <Link className="text-[#007cc2]" href="#book">
-            Plan travel
-          </Link>
-          <Link className="text-[#17633e]" href="/services">
-            Sports services
-          </Link>
-          <Link className="text-slate-600" href="/travel-info">
-            Travel info
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/team-login"
-            className="hidden rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold sm:inline-flex"
+    <div className="min-h-screen bg-[#f4f7f8] text-[#102331]">
+      <SiteHeader />
+
+      <main>
+        {/* Hero */}
+        <section className="relative">
+          <div
+            className="relative h-[430px] bg-cover bg-center sm:h-[500px] lg:h-[580px]"
+            style={{ backgroundImage: "url('/sportinuity-hero.png')" }}
           >
-            Team login
-          </Link>
-          <Link
-            href="/manage-request"
-            className="hidden rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold sm:inline-flex"
+            {/* Small screens: full-width tint */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-r from-[#081924]/90 via-[#081924]/60 to-[#081924]/20 lg:hidden"
+            />
+            {/* Large screens: diagonal panel behind the headline */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-y-0 left-0 hidden w-[64%] bg-[#081924]/85 [clip-path:polygon(0_0,100%_0,74%_100%,0_100%)] lg:block"
+            />
+            <div className="relative mx-auto flex h-full max-w-[1850px] flex-col justify-center px-4 pb-16 sm:px-9">
+              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#d0ee27]">
+                Sport travel, made simple
+              </p>
+              <h1 className="mt-4 max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+                Move your team.
+                <br />
+                <span className="text-[#d0ee27]">Make the moment.</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/85 sm:text-lg sm:leading-8">
+                Flights, accommodation, transport and on-the-ground support for
+                teams and delegations travelling to compete.
+              </p>
+            </div>
+          </div>
+
+          {/* Tabs overlapping the hero, attached to the booking panel */}
+          <div
+            id="book"
+            className="relative z-10 mx-auto -mt-14 max-w-[1850px] scroll-mt-24 px-4 sm:-mt-16 sm:px-9"
           >
-            Manage request
-          </Link>
-          <button
-            className="rounded-lg p-2 md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
-          >
-            {menuOpen ? <X /> : <Menu />}
-          </button>
-        </div>
-        {menuOpen && (
-          <nav className="absolute right-5 top-16 flex w-56 flex-col gap-4 rounded-2xl bg-white p-5 shadow-xl md:hidden">
-            <Link href="#book">Plan travel</Link>
-            <Link href="/services">Sports services</Link>
-            <Link href="/travel-info">Travel info</Link>
-            <Link href="/team-login">Team login</Link>
-            <Link href="/team-login">Team login</Link>
-            <Link href="/manage-request">Manage request</Link>
-          </nav>
-        )}
-      </header>
-      <section
-        className="relative min-h-[570px] bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "linear-gradient(90deg,rgba(8,25,36,.86),rgba(8,25,36,.22)),url('/sportinuity-hero.png')",
-        }}
-      >
-        <div className="mx-auto max-w-[1360px] px-5 pb-52 pt-28 sm:px-10 lg:px-16">
-          <p className="text-sm font-bold uppercase tracking-[.2em] text-[#d0ee27]">
-            Sport travel, made simple
-          </p>
-          <h1 className="mt-4 max-w-2xl text-5xl font-black leading-none tracking-tight text-white sm:text-7xl">
-            Move your team.
-            <br />
-            <span className="text-[#d0ee27]">Make the moment.</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-white/85">
-            Flights, accommodation, transport and on-the-ground support for
-            teams and delegations travelling to compete.
-          </p>
-        </div>
-        <div
-          id="book"
-          className="absolute bottom-[-138px] left-1/2 w-[calc(100%-2rem)] max-w-[1320px] -translate-x-1/2 rounded-2xl bg-[#007cc2] p-4 shadow-2xl sm:p-6"
-        >
-          <div className="mb-5 flex flex-wrap gap-2">
-            <button className="rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#007cc2]">
-              Request logistics
-            </button>
+            <div className="grid grid-cols-3 gap-1.5 sm:flex sm:gap-2">
+              <button
+                type="button"
+                aria-current="true"
+                className="flex items-center justify-center rounded-t-xl bg-[#007cc2] px-2 py-3 text-center text-xs font-black uppercase leading-tight text-[#d0ee27] sm:px-8 sm:py-4 sm:text-base lg:text-lg"
+              >
+                Request logistics
+              </button>
+              <Link
+                href="/services"
+                className="flex items-center justify-center rounded-t-xl bg-white px-2 py-3 text-center text-xs font-black uppercase leading-tight text-[#007cc2] transition hover:bg-slate-50 sm:px-8 sm:py-4 sm:text-base lg:text-lg"
+              >
+                Explore services
+              </Link>
+              <Link
+                href="/manage-request"
+                className="flex items-center justify-center rounded-t-xl bg-white px-2 py-3 text-center text-xs font-black uppercase leading-tight text-[#007cc2] transition hover:bg-slate-50 sm:px-8 sm:py-4 sm:text-base lg:text-lg"
+              >
+                Manage a request
+              </Link>
+            </div>
+
+            <div className="rounded-2xl rounded-tl-none bg-[#007cc2] p-4 shadow-2xl sm:p-6 lg:p-8">
+              <div className="mb-5 flex flex-wrap items-center gap-3">
+                <span className="rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-[#007cc2] sm:text-base">
+                  Round trip
+                </span>
+                <p className="text-sm font-medium text-white/85 sm:text-base">
+                  Tell us about your team&apos;s journey.
+                </p>
+              </div>
+
+              <form
+                onSubmit={submit}
+                className="grid gap-3 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.5fr)_minmax(0,.9fr)_auto]"
+              >
+                {/* From / To in one white box */}
+                <div className="grid overflow-hidden rounded-xl bg-white sm:grid-cols-2">
+                  <label
+                    className={`flex ${fieldHeight} items-center gap-3 px-4 transition focus-within:bg-slate-50`}
+                  >
+                    <MapPin className="shrink-0 text-[#007cc2]" />
+                    <span className="sr-only">Travelling from</span>
+                    <input
+                      required
+                      name="from"
+                      placeholder="Travelling from"
+                      className="w-full min-w-0 bg-transparent text-base font-semibold outline-none placeholder:font-medium placeholder:text-slate-400"
+                    />
+                  </label>
+                  <label
+                    className={`flex ${fieldHeight} items-center gap-3 border-t border-slate-200 px-4 transition focus-within:bg-slate-50 sm:border-l sm:border-t-0`}
+                  >
+                    <MapPin className="shrink-0 text-[#007cc2]" />
+                    <span className="sr-only">Destination</span>
+                    <input
+                      required
+                      name="destination"
+                      placeholder="Destination"
+                      className="w-full min-w-0 bg-transparent text-base font-semibold outline-none placeholder:font-medium placeholder:text-slate-400"
+                    />
+                  </label>
+                </div>
+
+                {/* Dates */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setDatesOpen(!datesOpen)}
+                    aria-label="Travel dates"
+                    aria-expanded={datesOpen}
+                    className={`grid ${fieldHeight} w-full grid-cols-2 items-center rounded-xl bg-white text-left transition hover:bg-slate-50`}
+                  >
+                    <span className="flex min-w-0 items-center gap-3 px-4">
+                      <CalendarDays className="shrink-0 text-[#007cc2]" />
+                      <span
+                        className={`truncate text-base ${
+                          dates.departure
+                            ? "font-semibold"
+                            : "font-medium text-slate-400"
+                        }`}
+                      >
+                        {dates.departure || "Departure"}
+                      </span>
+                    </span>
+                    <span className="flex h-full min-w-0 items-center border-l border-slate-200 px-4">
+                      <span
+                        className={`truncate text-base ${
+                          dates.returnDate
+                            ? "font-semibold"
+                            : "font-medium text-slate-400"
+                        }`}
+                      >
+                        {dates.returnDate || "Return"}
+                      </span>
+                    </span>
+                  </button>
+                  {datesOpen && (
+                    <DateRangePicker
+                      value={dates}
+                      onChange={setDates}
+                      onDone={() => setDatesOpen(false)}
+                    />
+                  )}
+                </div>
+
+                {/* Travellers */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setTravellersOpen(!travellersOpen)}
+                    aria-expanded={travellersOpen}
+                    className={`flex ${fieldHeight} w-full items-center gap-3 rounded-xl bg-white px-4 text-left transition hover:bg-slate-50`}
+                  >
+                    <Users className="shrink-0 text-[#007cc2]" />
+                    <span className="flex-1 whitespace-nowrap text-base font-semibold">
+                      {total} {total === 1 ? "traveller" : "travellers"}
+                    </span>
+                    <ChevronDown className="shrink-0 text-[#007cc2]" />
+                  </button>
+                  {travellersOpen && (
+                    <TravellerPicker
+                      value={travellers}
+                      onChange={setTravellers}
+                      onDone={() => setTravellersOpen(false)}
+                    />
+                  )}
+                </div>
+
+                <input
+                  type="hidden"
+                  name="team"
+                  value="Public Sportinuity request"
+                />
+                <button
+                  type="submit"
+                  className={`${fieldHeight} rounded-xl bg-[#d0ee27] px-8 text-lg font-black uppercase tracking-wide text-[#25370d] transition hover:bg-[#c1df1b] focus:outline-none focus-visible:ring-4 focus-visible:ring-white/60 active:scale-[0.99]`}
+                >
+                  Continue
+                </button>
+              </form>
+
+              {formError && (
+                <p
+                  role="alert"
+                  className="mt-4 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-red-700"
+                >
+                  {formError}
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Services */}
+        <section className="mx-auto max-w-[1850px] px-4 pt-16 sm:px-9 sm:pt-20">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[.16em] text-[#102331]">
+                Explore more
+              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-[#007cc2] sm:text-4xl">
+                Services for teams
+              </h2>
+            </div>
             <Link
               href="/services"
-              className="rounded-lg px-5 py-3 text-sm font-bold text-white"
+              className="text-base font-bold text-[#007cc2] hover:underline"
             >
-              Explore services
-            </Link>
-            <Link
-              href="/manage-request"
-              className="rounded-lg px-5 py-3 text-sm font-bold text-white"
-            >
-              Manage a request
+              See all our services →
             </Link>
           </div>
-          <form
-            onSubmit={submit}
-            className="grid gap-3 lg:grid-cols-[1fr_1fr_1.15fr_1fr_auto]"
-          >
-            <label className="flex items-center gap-3 rounded-xl bg-white px-4 py-3">
-              <MapPin className="text-[#007cc2]" />
-              <span className="flex flex-1 flex-col">
-                <span className="text-[10px] font-bold uppercase text-slate-400">
-                  Travelling from
-                </span>
-                <input
-                  required
-                  name="from"
-                  placeholder="City or airport"
-                  className="bg-transparent text-sm font-semibold outline-none"
-                />
-              </span>
-            </label>
-            <label className="flex items-center gap-3 rounded-xl bg-white px-4 py-3">
-              <MapPin className="text-[#007cc2]" />
-              <span className="flex flex-1 flex-col">
-                <span className="text-[10px] font-bold uppercase text-slate-400">
-                  Destination
-                </span>
-                <input
-                  required
-                  name="destination"
-                  placeholder="Where are you going?"
-                  className="bg-transparent text-sm font-semibold outline-none"
-                />
-              </span>
-            </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setDatesOpen(!datesOpen)}
-                className="flex min-h-[68px] w-full items-center gap-3 rounded-xl bg-white px-4 text-left"
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {serviceCards.map(
+              ({ href, kicker, title, body, cta, icon: Icon, variant }) => {
+                const s = cardStyles[variant];
+                return (
+                  <Link
+                    key={title}
+                    href={href}
+                    className={`group relative flex min-h-[320px] flex-col overflow-hidden rounded-3xl p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl sm:p-8 ${s.card}`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`absolute -right-12 -top-12 size-44 rounded-full ${s.blob}`}
+                    />
+                    <span
+                      className={`relative flex size-12 items-center justify-center rounded-2xl ${s.icon}`}
+                    >
+                      <Icon className="size-6" />
+                    </span>
+                    <p
+                      className={`relative mt-6 text-xs font-bold uppercase tracking-[.16em] ${s.kicker}`}
+                    >
+                      {kicker}
+                    </p>
+                    <h3 className="relative mt-2 text-2xl font-black">
+                      {title}
+                    </h3>
+                    <p
+                      className={`relative mt-3 text-base leading-7 ${s.body}`}
+                    >
+                      {body}
+                    </p>
+                    <span
+                      className={`relative mt-auto pt-8 text-base font-bold transition group-hover:translate-x-1 ${s.cta}`}
+                    >
+                      {cta}
+                    </span>
+                  </Link>
+                );
+              },
+            )}
+          </div>
+        </section>
+
+        {/* Quick links */}
+        <section className="mx-auto max-w-[1850px] px-4 pt-16 sm:px-9 sm:pt-20">
+          <div className="mb-8 text-center">
+            <p className="text-sm font-bold uppercase tracking-[.16em] text-[#102331]">
+              Get ready
+            </p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-[#007cc2] sm:text-4xl">
+              Know before you travel
+            </h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {quickLinks.map(({ href, title, body }) => (
+              <Link
+                key={title}
+                href={href}
+                className="group rounded-2xl bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
               >
-                <CalendarDays className="text-[#007cc2]" />
-                <span className="flex-1">
-                  <span className="block text-[10px] font-bold uppercase text-slate-400">
-                    Travel dates
-                  </span>
-                  <span className="text-sm font-semibold">
-                    {dates.departure
-                      ? `${dates.departure} ${dates.returnDate ? `— ${dates.returnDate}` : ""}`
-                      : "Select dates"}
-                  </span>
+                <h3 className="text-2xl font-black leading-tight text-[#007cc2]">
+                  {title}
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-500">{body}</p>
+                <span className="mt-5 block text-sm font-bold text-[#17633e] transition group-hover:translate-x-1">
+                  Go →
                 </span>
-                <ChevronDown className="text-slate-400" />
-              </button>
-              {datesOpen && (
-                <DateRangePicker
-                  value={dates}
-                  onChange={setDates}
-                  onDone={() => setDatesOpen(false)}
-                />
-              )}
-            </div>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setTravellersOpen(!travellersOpen)}
-                className="flex min-h-[68px] w-full items-center gap-3 rounded-xl bg-white px-4 text-left"
-              >
-                <Users className="text-[#007cc2]" />
-                <span className="flex-1">
-                  <span className="block text-[10px] font-bold uppercase text-slate-400">
-                    Travellers
-                  </span>
-                  <span className="text-sm font-semibold">
-                    {total} {total === 1 ? "traveller" : "travellers"}
-                  </span>
-                </span>
-                <ChevronDown className="text-slate-400" />
-              </button>
-              {travellersOpen && (
-                <TravellerPicker
-                  value={travellers}
-                  onChange={setTravellers}
-                  onDone={() => setTravellersOpen(false)}
-                />
-              )}
-            </div>
-            <input
-              type="hidden"
-              name="team"
-              value="Public Sportinuity request"
-            />
-            <button className="min-h-[68px] rounded-xl bg-[#d0ee27] px-7 font-black text-[#25370d] hover:bg-[#c1df1b]">
-              CONTINUE
-            </button>
-          </form>
-        </div>
-      </section>
-      <section className="mx-auto max-w-[1320px] px-5 pb-20 pt-48 sm:px-10 lg:px-16">
-        <div className="grid gap-5 md:grid-cols-3">
-          <Link href="/services" className="rounded-2xl bg-white p-7 shadow-sm">
-            <h2 className="text-xl font-black">Travel for teams</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-500">
-              Group flights and coordinated itineraries built around your match
-              schedule.
-            </p>
-            <span className="mt-6 block text-sm font-bold text-[#007cc2]">
-              Explore services →
-            </span>
-          </Link>
-          <Link href="/services" className="rounded-2xl bg-white p-7 shadow-sm">
-            <h2 className="text-xl font-black">Complete logistics</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-500">
-              Accommodation, airport transfers, meals and local transport in one
-              place.
-            </p>
-            <span className="mt-6 block text-sm font-bold text-[#17633e]">
-              View support →
-            </span>
-          </Link>
-          <Link
-            href="/travel-info"
-            className="rounded-2xl bg-[#102331] p-7 text-white shadow-sm"
-          >
-            <h2 className="text-xl font-black">Travel with confidence</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              Practical guidance for teams travelling across Africa and beyond.
-            </p>
-            <span className="mt-6 block text-sm font-bold text-[#d0ee27]">
-              Travel info →
-            </span>
-          </Link>
-        </div>
-      </section>
-    </main>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </div>
   );
 }

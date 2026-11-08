@@ -4,6 +4,8 @@ import { FormEvent, Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { createLogisticsRequest } from "../lib/api";
+import SiteHeader from "../components/site-header";
+import SiteFooter from "../components/site-footer";
 
 type Traveller = {
   firstName: string;
@@ -23,6 +25,16 @@ const emptyTraveller = (
   dietary: "",
   category,
 });
+
+const steps = [
+  { n: 1, label: "Trip", done: true },
+  { n: 2, label: "Travellers", done: true },
+  { n: 3, label: "Services", done: false },
+  { n: 4, label: "Review", done: false },
+];
+
+const inputClass =
+  "h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base outline-none transition placeholder:text-slate-400 focus:border-[#007cc2] focus:ring-4 focus:ring-[#007cc2]/15";
 
 function RequestDetailsForm() {
   const params = useSearchParams();
@@ -85,61 +97,72 @@ function RequestDetailsForm() {
     [params],
   );
   return (
-    <main className="min-h-screen bg-[#f4f7f8] text-[#102331]">
-      <header className="border-b bg-white px-5 py-4 sm:px-10">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/" className="text-xl font-black text-[#007cc2]">
-            Sportinuity
-          </Link>
-          <Link href="/" className="text-sm font-bold text-[#007cc2]">
-            Back to trip search
-          </Link>
-        </div>
-      </header>
-      <div className="bg-[#007cc2] px-5 py-5 text-white">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
-          <div>
+    <main>
+      {/* Trip summary band */}
+      <div className="bg-[#007cc2] px-4 py-6 text-white sm:px-9">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-[.18em] text-[#d0ee27]">
               Team logistics request
             </p>
-            <p className="mt-1 font-bold">{tripSummary}</p>
+            <p className="mt-1 text-lg font-bold sm:text-xl">{tripSummary}</p>
           </div>
           <p className="rounded-full bg-white/15 px-4 py-2 text-sm font-semibold">
             {total} traveller{total === 1 ? "" : "s"}
           </p>
         </div>
       </div>
-      <nav className="mx-auto flex max-w-5xl gap-5 overflow-x-auto px-5 py-6 text-xs font-bold uppercase tracking-wider sm:px-10">
-        <span className="border-b-2 border-[#007cc2] pb-2 text-[#007cc2]">
-          1 Trip
-        </span>
-        <span className="border-b-2 border-[#007cc2] pb-2 text-[#007cc2]">
-          2 Travellers
-        </span>
-        <span className="pb-2 text-slate-400">3 Services</span>
-        <span className="pb-2 text-slate-400">4 Review</span>
-      </nav>
+
+      {/* Progress steps */}
+      <ol
+        aria-label="Request progress"
+        className="mx-auto flex max-w-5xl gap-6 overflow-x-auto px-4 py-6 sm:gap-10 sm:px-9"
+      >
+        {steps.map(({ n, label, done }) => (
+          <li
+            key={n}
+            aria-current={n === 2 ? "step" : undefined}
+            className={`flex shrink-0 items-center gap-2.5 text-xs font-bold uppercase tracking-wider ${
+              done ? "text-[#007cc2]" : "text-slate-400"
+            }`}
+          >
+            <span
+              className={`flex size-7 items-center justify-center rounded-full text-xs ${
+                done
+                  ? "bg-[#007cc2] text-white"
+                  : "border-2 border-slate-300 text-slate-400"
+              }`}
+            >
+              {n}
+            </span>
+            {label}
+          </li>
+        ))}
+      </ol>
+
       <form
         onSubmit={submit}
-        className="mx-auto max-w-5xl space-y-7 px-5 pb-16 sm:px-10"
+        className="mx-auto max-w-5xl space-y-10 px-4 pb-6 sm:px-9"
       >
         <section>
-          <p className="font-bold uppercase tracking-widest text-[#17633e]">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#17633e]">
             Request profile
           </p>
-          <h1 className="mt-2 text-4xl font-black">Tell us about your team</h1>
+          <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+            Tell us about your team
+          </h1>
           <p className="mt-2 text-slate-500">
             We use these details to build the right rooming list, transport plan
             and quote.
           </p>
-          <div className="mt-6 grid gap-4 rounded-3xl bg-white p-5 shadow-sm sm:grid-cols-2">
+          <div className="mt-6 grid gap-4 rounded-3xl bg-white p-5 shadow-sm sm:grid-cols-2 sm:p-6">
             <label className="text-sm font-bold">
               Team or organisation
               <input
                 required
                 value={team}
                 onChange={(e) => setTeam(e.target.value)}
-                className="mt-2 h-12 w-full rounded-xl border px-3 font-normal outline-none focus:ring-2 focus:ring-[#007cc2]"
+                className={`${inputClass} mt-2 font-normal`}
                 placeholder="e.g. Harbour Sharks FC"
               />
             </label>
@@ -149,21 +172,22 @@ function RequestDetailsForm() {
                 required
                 value={event}
                 onChange={(e) => setEvent(e.target.value)}
-                className="mt-2 h-12 w-full rounded-xl border px-3 font-normal outline-none focus:ring-2 focus:ring-[#007cc2]"
+                className={`${inputClass} mt-2 font-normal`}
                 placeholder="e.g. Regional finals"
               />
             </label>
           </div>
         </section>
+
         <section>
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-bold uppercase tracking-widest text-[#17633e]">
+              <p className="text-sm font-bold uppercase tracking-widest text-[#17633e]">
                 Passenger data
               </p>
               <h2 className="mt-2 text-2xl font-black">Traveller details</h2>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="max-w-sm text-xs text-slate-500">
               Select a class for each traveller to support rooming-list pricing.
             </p>
           </div>
@@ -171,10 +195,13 @@ function RequestDetailsForm() {
             {travellers.map((traveller, index) => (
               <article
                 key={index}
-                className="rounded-3xl bg-white p-5 shadow-sm"
+                className="rounded-3xl bg-white p-5 shadow-sm sm:p-6"
               >
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <h3 className="font-black text-[#007cc2]">
+                  <h3 className="flex items-center gap-3 font-black text-[#007cc2]">
+                    <span className="flex size-8 items-center justify-center rounded-full bg-[#e8f4fb] text-sm">
+                      {index + 1}
+                    </span>
                     {index < adults
                       ? `Adult ${index + 1}`
                       : index < adults + children
@@ -182,11 +209,12 @@ function RequestDetailsForm() {
                         : `Infant ${index - adults - children + 1}`}
                   </h3>
                   <select
+                    aria-label="Traveller class"
                     value={traveller.type}
                     onChange={(e) =>
                       updateTraveller(index, "type", e.target.value)
                     }
-                    className="rounded-lg border border-[#007cc2] px-3 py-2 text-sm font-bold text-[#007cc2]"
+                    className="rounded-lg border border-[#007cc2] bg-white px-3 py-2 text-sm font-bold text-[#007cc2] outline-none transition focus:ring-4 focus:ring-[#007cc2]/15"
                   >
                     <option value="regular">Regular</option>
                     <option value="vip">VIP</option>
@@ -197,82 +225,103 @@ function RequestDetailsForm() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <input
                     required
+                    aria-label="First name"
+                    autoComplete="off"
                     value={traveller.firstName}
                     onChange={(e) =>
                       updateTraveller(index, "firstName", e.target.value)
                     }
                     placeholder="First name"
-                    className="h-11 rounded-xl border px-3"
+                    className={inputClass}
                   />
                   <input
                     required
+                    aria-label="Last name"
+                    autoComplete="off"
                     value={traveller.lastName}
                     onChange={(e) =>
                       updateTraveller(index, "lastName", e.target.value)
                     }
                     placeholder="Last name"
-                    className="h-11 rounded-xl border px-3"
+                    className={inputClass}
                   />
                   <input
+                    aria-label="Passport or ID number"
+                    autoComplete="off"
                     value={traveller.documentNumber}
                     onChange={(e) =>
                       updateTraveller(index, "documentNumber", e.target.value)
                     }
                     placeholder="Passport / ID number"
-                    className="h-11 rounded-xl border px-3"
+                    className={inputClass}
                   />
                   <input
+                    aria-label="Dietary or access needs"
+                    autoComplete="off"
                     value={traveller.dietary}
                     onChange={(e) =>
                       updateTraveller(index, "dietary", e.target.value)
                     }
                     placeholder="Dietary or access needs"
-                    className="h-11 rounded-xl border px-3"
+                    className={inputClass}
                   />
                 </div>
               </article>
             ))}
           </div>
         </section>
+
         <section>
-          <p className="font-bold uppercase tracking-widest text-[#17633e]">
+          <p className="text-sm font-bold uppercase tracking-widest text-[#17633e]">
             Primary contact
           </p>
           <h2 className="mt-2 text-2xl font-black">Who should we contact?</h2>
-          <div className="mt-4 grid gap-3 rounded-3xl bg-white p-5 shadow-sm sm:grid-cols-3">
+          <div className="mt-4 grid gap-3 rounded-3xl bg-white p-5 shadow-sm sm:grid-cols-3 sm:p-6">
             <input
               required
+              aria-label="Full name"
+              autoComplete="name"
               value={contact.name}
               onChange={(e) => setContact({ ...contact, name: e.target.value })}
               placeholder="Full name"
-              className="h-11 rounded-xl border px-3"
+              className={inputClass}
             />
             <input
               required
               type="email"
+              aria-label="Email address"
+              autoComplete="email"
+              inputMode="email"
               value={contact.email}
               onChange={(e) =>
                 setContact({ ...contact, email: e.target.value })
               }
               placeholder="Email address"
-              className="h-11 rounded-xl border px-3"
+              className={inputClass}
             />
             <input
               required
+              aria-label="Phone number"
+              autoComplete="tel"
+              inputMode="tel"
               value={contact.phone}
               onChange={(e) =>
                 setContact({ ...contact, phone: e.target.value })
               }
               placeholder="Phone number"
-              className="h-11 rounded-xl border px-3"
+              className={inputClass}
             />
           </div>
         </section>
+
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <Link href="/" className="font-bold text-[#007cc2]">
+          <Link href="/" className="font-bold text-[#007cc2] hover:underline">
             ← Edit trip
           </Link>
-          <button className="rounded-xl bg-[#d0ee27] px-8 py-3 font-black text-[#102331]">
+          <button
+            type="submit"
+            className="rounded-xl bg-[#d0ee27] px-8 py-3.5 font-black uppercase tracking-wide text-[#102331] transition hover:bg-[#c1df1b] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#d0ee27]/60 active:scale-[0.99]"
+          >
             Submit request
           </button>
         </div>
@@ -291,14 +340,18 @@ function RequestDetailsForm() {
 
 export default function RequestDetailsPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="min-h-screen bg-[#f4f7f8] p-10 text-[#102331]">
-          Loading request details…
-        </main>
-      }
-    >
-      <RequestDetailsForm />
-    </Suspense>
+    <div className="min-h-screen bg-[#f4f7f8] text-[#102331]">
+      <SiteHeader />
+      <Suspense
+        fallback={
+          <main className="min-h-[50vh] p-10 text-[#102331]">
+            Loading request details…
+          </main>
+        }
+      >
+        <RequestDetailsForm />
+      </Suspense>
+      <SiteFooter />
+    </div>
   );
 }
