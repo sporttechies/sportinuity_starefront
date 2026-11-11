@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ClipboardList, Menu, UserRound, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ChevronDown,
+  ClipboardList,
+  LogOut,
+  Menu,
+  UserRound,
+  X,
+} from "lucide-react";
+import { clearTeamSession } from "../lib/api";
+import { useTeamSession } from "../lib/use-team-session";
+import TeamAvatar from "./team-avatar";
 
 /**
  * Shared site header.
@@ -20,10 +30,11 @@ const navLinks = [
   { label: "Travel info", href: "/travel-info", color: "text-slate-600" },
 ];
 
-const utilityLinks = [
-  { label: "Manage request", href: "/manage-request", icon: ClipboardList },
-  { label: "Team login", href: "/team-login", icon: UserRound },
-];
+const requestsLink = {
+  label: "My requests",
+  href: "/manage-request",
+  icon: ClipboardList,
+};
 
 function isActive(pathname: string, href: string) {
   const path = href.split("#")[0] || "/";
@@ -34,6 +45,28 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const { user } = useTeamSession();
+  const accountRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  function signOut() {
+    clearTeamSession();
+    setAccountOpen(false);
+    setMenuOpen(false);
+    router.push("/");
+  }
+
+  // Close the account dropdown on outside click.
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onDown = (event: MouseEvent) => {
+      if (!accountRef.current?.contains(event.target as Node))
+        setAccountOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [accountOpen]);
 
   // Compact the logo and add a stronger shadow once the page is scrolled.
   useEffect(() => {
@@ -46,12 +79,16 @@ export default function SiteHeader() {
   // Close the mobile menu after navigating.
   useEffect(() => {
     setMenuOpen(false);
+    setAccountOpen(false);
   }, [pathname]);
 
   // Escape closes the mobile menu.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setAccountOpen(false);
+      }
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
@@ -62,16 +99,72 @@ export default function SiteHeader() {
       {/* Utility bar — scrolls away with the page */}
       <div className="hidden bg-slate-100 md:block">
         <div className="mx-auto flex h-11 max-w-[1850px] items-center justify-end gap-7 px-4 sm:px-9">
-          {utilityLinks.map(({ label, href, icon: Icon }) => (
+          {user ? (
+            <>
+              <Link
+                href={requestsLink.href}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#007cc2] transition hover:text-[#006ba8]"
+              >
+                <requestsLink.icon className="size-[18px]" />
+                {requestsLink.label}
+              </Link>
+              <div className="relative" ref={accountRef}>
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((open) => !open)}
+                  aria-expanded={accountOpen}
+                  aria-haspopup="menu"
+                  className="inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-2 text-sm font-semibold text-[#102331] transition hover:bg-white"
+                >
+                  <TeamAvatar
+                    name={user.teamName}
+                    logoPath={user.logoPath}
+                    className="size-7"
+                  />
+                  <span className="max-w-[180px] truncate">{user.teamName}</span>
+                  <ChevronDown className="size-4 text-slate-500" />
+                </button>
+                {accountOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-xl"
+                  >
+                    <Link
+                      role="menuitem"
+                      href="/manage-request"
+                      className="block px-4 py-2.5 text-sm font-semibold hover:bg-slate-50"
+                    >
+                      My requests
+                    </Link>
+                    <Link
+                      role="menuitem"
+                      href="/team-profile"
+                      className="block px-4 py-2.5 text-sm font-semibold hover:bg-slate-50"
+                    >
+                      Team profile
+                    </Link>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={signOut}
+                      className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-2.5 text-left text-sm font-semibold text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="size-4" />
+                      Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
             <Link
-              key={label}
-              href={href}
+              href="/team-login"
               className="inline-flex items-center gap-2 text-sm font-semibold text-[#007cc2] transition hover:text-[#006ba8]"
             >
-              <Icon className="size-[18px]" />
-              {label}
+              <UserRound className="size-[18px]" />
+              Team login
             </Link>
-          ))}
+          )}
         </div>
       </div>
 
@@ -148,17 +241,51 @@ export default function SiteHeader() {
               </Link>
             ))}
             <div className="mt-3 grid gap-1">
-              {utilityLinks.map(({ label, href, icon: Icon }) => (
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 px-1 py-3">
+                    <TeamAvatar
+                      name={user.teamName}
+                      logoPath={user.logoPath}
+                      className="size-9"
+                    />
+                    <span className="truncate font-bold">{user.teamName}</span>
+                  </div>
+                  <Link
+                    href="/manage-request"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-lg px-1 py-3 text-base font-semibold hover:bg-slate-50"
+                  >
+                    <ClipboardList className="size-5 text-[#007cc2]" />
+                    My requests
+                  </Link>
+                  <Link
+                    href="/team-profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 rounded-lg px-1 py-3 text-base font-semibold hover:bg-slate-50"
+                  >
+                    <UserRound className="size-5 text-[#007cc2]" />
+                    Team profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={signOut}
+                    className="flex items-center gap-3 rounded-lg px-1 py-3 text-left text-base font-semibold text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut className="size-5" />
+                    Sign out
+                  </button>
+                </>
+              ) : (
                 <Link
-                  key={label}
-                  href={href}
+                  href="/team-login"
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-3 rounded-lg px-1 py-3 text-base font-semibold text-[#102331] hover:bg-slate-50"
                 >
-                  <Icon className="size-5 text-[#007cc2]" />
-                  {label}
+                  <UserRound className="size-5 text-[#007cc2]" />
+                  Team login
                 </Link>
-              ))}
+              )}
             </div>
           </nav>
         )}

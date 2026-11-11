@@ -1,3 +1,57 @@
-'use client'
-type Value = { adults: number; children: number; infants: number }
-export default function TravellerPicker({ value, onChange, onDone }: { value: Value; onChange: (value: Value) => void; onDone: () => void }) { const rows = [['adults', 'Adult', '12+ years'], ['children', 'Children', '2–11 years'], ['infants', 'Infant', '<2 years']] as const; return <div className="absolute right-0 top-[76px] z-40 w-[min(92vw,360px)] rounded-2xl bg-white p-6 text-slate-800 shadow-2xl"><h3 className="text-xl font-black text-[#007cc2]">Travellers</h3><div className="mt-4 flex flex-col gap-5">{rows.map(([key, label, hint]) => <div key={key} className="flex items-center justify-between"><div><p className="font-semibold">{label}</p><p className="text-xs text-slate-500">{hint}</p></div><div className="flex items-center gap-4"><button type="button" disabled={key === 'adults' ? value[key] <= 1 : value[key] <= 0} onClick={() => onChange({ ...value, [key]: value[key] - 1 })} className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-lg disabled:opacity-40">−</button><span className="w-4 text-center font-bold">{value[key]}</span><button type="button" onClick={() => onChange({ ...value, [key]: value[key] + 1 })} className="flex size-9 items-center justify-center rounded-lg bg-[#007cc2] text-lg text-white">+</button></div></div>)}</div><button type="button" onClick={onDone} className="mt-6 w-full rounded-xl border border-[#007cc2] py-2 font-bold text-[#007cc2]">Done</button></div> }
+"use client";
+type Value = { adults: number; children: number; infants: number };
+export default function TravellerPicker({
+  value,
+  onChange,
+  onDone,
+}: {
+  value: Value;
+  onChange: (value: Value) => void;
+  onDone: () => void;
+}) {
+  const rows = [
+    ["adults", "Adult", "12+ years"],
+    ["children", "Children", "2–11 years"],
+    ["infants", "Infant", "<2 years"],
+  ] as const;
+  return (
+    <div className="absolute right-0 top-[76px] z-40 w-[min(92vw,360px)] rounded-2xl bg-white p-6 text-slate-800 shadow-2xl">
+      <h3 className="text-xl font-black text-[#007cc2]">Travellers</h3>
+      <div className="mt-4 flex flex-col gap-5">
+        {rows.map(([key, label, hint]) => (
+          <div key={key} className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold">{label}</p>
+              <p className="text-xs text-slate-500">{hint}</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                disabled={key === "adults" ? value[key] <= 1 : value[key] <= 0}
+                onClick={() => onChange({ ...value, [key]: value[key] - 1 })}
+                className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-lg disabled:opacity-40"
+              >
+                −
+              </button>
+              <span className="w-4 text-center font-bold">{value[key]}</span>
+              <button
+                type="button"
+                onClick={() => onChange({ ...value, [key]: value[key] + 1 })}
+                className="flex size-9 items-center justify-center rounded-lg bg-[#007cc2] text-lg text-white"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={onDone}
+        className="mt-6 w-full rounded-xl border border-[#007cc2] py-2 font-bold text-[#007cc2]"
+      >
+        Done
+      </button>
+    </div>
+  );
+}
