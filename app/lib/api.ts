@@ -280,3 +280,57 @@ export async function saveServerDraft(draft: unknown) {
 export async function deleteServerDraft() {
   return request<void>("/api/team/draft", { method: "DELETE" });
 }
+
+// ---- invoices (issued ones only; drafts are never visible to teams) ---------------
+export type InvoiceStatus = "issued" | "paid" | "void";
+
+export type TeamInvoice = {
+  id: string;
+  number: string;
+  status: InvoiceStatus;
+  requestReference: string;
+  currency: string;
+  taxRate: number;
+  subtotal: number;
+  taxAmount: number;
+  total: number;
+  notes: string | null;
+  issueDate: string | null;
+  dueDate: string | null;
+  paidAt: string | null;
+  voidReason: string | null;
+  items: { description: string; quantity: number; unitPrice: number; lineTotal: number }[];
+};
+
+export async function listRequestInvoices(reference: string) {
+  return (
+    await request<{ data: TeamInvoice[] }>(
+      `/api/team/requests/${encodeURIComponent(reference)}/invoices`,
+    )
+  ).data;
+}
+
+/** The PDF is behind the login, so it's fetched with the token and saved from a blob. */
+export async function downloadInvoicePdf(invoice: { id: string; number: string }) {
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/api/team/invoices/${invoice.id}/pdf`, {
+      headers: { Authorization: `Bearer ${getTeamToken()}` },
+    });
+  } catch {
+    throw new ApiError("We couldn't reach the server. Check your connection and try again.", 0);
+  }
+  if (!response.ok) {
+    if (response.status === 401) clearTeamSession();
+    const data = await response.json().catch(() => ({}));
+    throw new ApiError(data.message || "Could not download the invoice", response.status);
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${invoice.number}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}

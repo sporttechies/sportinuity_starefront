@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronUp } from "lucide-react";
+import BrandPattern from "./brand-pattern";
 
 /**
  * Shared site footer.
@@ -164,17 +165,48 @@ export default function SiteFooter() {
           </nav>
         </div>
 
-        <div className="border-t border-slate-100">
-          <div className="mx-auto max-w-[1850px] px-4 py-6 text-sm text-slate-500 sm:px-9">
-            &copy; {new Date().getFullYear()} Sportinuity. All rights reserved.
+        <div className="border-t border-slate-100 px-4 py-6 sm:px-9 text-slate-500 flex flex-col items-center gap-4 text-center lg:flex-row lg:justify-between lg:text-left">
+          <p className="text-sm leading-relaxed text-slate-500">
+            Copyright &copy; {new Date().getFullYear()} Sportinuity. All rights
+            reserved. Usage of this website states your compliance of our{" "}
+            <Link
+              href="/terms-of-use"
+              className="font-medium text-[#007cc2] underline-offset-2 hover:underline focus-visible:underline"
+            >
+              Terms of Use
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy-policy"
+              className="font-medium text-[#007cc2] underline-offset-2 hover:underline focus-visible:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
+          </p>
+
+          <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 lg:justify-end">
+            <p className="text-sm">Powered by</p>
+            <Link
+              href="https://www.sporttechies.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Powered by Sporttechies (opens in a new tab)"
+              className="inline-block"
+            >
+              <Image
+                src="/sporttechies_logo.png"
+                alt="Sporttechies"
+                width={170}
+                height={72}
+                className="h-8 w-auto object-contain sm:h-10"
+              />
+            </Link>
           </div>
         </div>
 
-        {/* Brand colour strip */}
-        <div
-          aria-hidden="true"
-          className="h-2 bg-[linear-gradient(90deg,#007cc2_0_34%,#17633e_34%_67%,#d0ee27_67%_100%)]"
-        />
+        {/* Brand pattern strip */}
+        <BrandPattern />
       </footer>
 
       {/* Back to top */}
@@ -182,7 +214,7 @@ export default function SiteFooter() {
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Back to top"
-        className={`fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-[#007cc2] text-white shadow-xl transition hover:bg-[#006ba8] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#007cc2]/30 ${
+        className={`fixed bottom-6 right-6 z-40 flex size-10 items-center justify-center rounded-full bg-[#007cc2] text-white shadow-xl transition hover:bg-[#006ba8] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#007cc2]/30 ${
           showTop ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       >

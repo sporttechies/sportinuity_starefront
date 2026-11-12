@@ -15,10 +15,15 @@ import { useTeamSession } from "../../lib/use-team-session";
 import SiteHeader from "../../components/site-header";
 import SiteFooter from "../../components/site-footer";
 import StatusBadge from "../../components/status-badge";
+import TeamInvoices from "../../components/team-invoices";
 
 const EVENT_LABELS: Record<string, string> = {
   created: "Request submitted",
   edited: "Details updated by our team",
+  invoice_issued: "Invoice issued",
+  invoice_paid: "Invoice marked as paid",
+  invoice_unpaid: "Payment status updated",
+  invoice_voided: "Invoice cancelled",
 };
 
 function eventLabel(e: { action: string; toStatus: string | null }) {
@@ -178,6 +183,8 @@ export default function RequestDetailPage() {
                 </ul>
               </section>
             )}
+
+            <TeamInvoices reference={data.reference} />
 
             {data.events && data.events.length > 0 && (
               <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-6">

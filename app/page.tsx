@@ -17,6 +17,55 @@ import DateRangePicker from "./components/date-range-picker";
 import TravellerPicker from "./components/traveller-picker";
 import SiteHeader from "./components/site-header";
 import SiteFooter from "./components/site-footer";
+import HeroSlider, { type HeroSlide } from "./components/hero-slider";
+
+const heroSlides: HeroSlide[] = [
+  {
+    image: "/hero/1.png",
+    layout: "left",
+    kicker: "Sport travel, made simple",
+    headline: "Move your team.",
+    highlight: "Make the moment.",
+    description:
+      "Flights, accommodation, transport and on-the-ground support for teams and delegations travelling to compete.",
+  },
+  {
+    image: "/hero/2.png",
+    layout: "right",
+    kicker: "Team flights",
+    headline: "Fly together.",
+    highlight: "Land ready to compete.",
+    description:
+      "Group bookings, seats that keep your squad together and room for kit and equipment.",
+  },
+  // {
+  //   image: "/hero/3.png",
+  //   layout: "full",
+  //   // kicker: "Wherever the game is",
+  //   // headline: "From the first booking",
+  //   // highlight: "to the final whistle.",
+  //   // description:
+  //   //   "One request, one team, and every part of your journey taken care of.",
+  // },
+  {
+    image: "/hero/4.png",
+    layout: "left",
+    kicker: "Accommodation",
+    headline: "Rest well.",
+    highlight: "Perform better.",
+    description:
+      "Team-friendly stays close to the venue, with the space and meals athletes need to recover.",
+  },
+  {
+    image: "/hero/5.png",
+    layout: "right",
+    kicker: "Transport & support",
+    headline: "We handle the logistics.",
+    highlight: "You focus on the game.",
+    description:
+      "Airport transfers, venue shuttles and on-the-ground support for coaches, managers and delegations.",
+  },
+];
 
 type CardVariant = "blue" | "green" | "dark";
 
@@ -160,35 +209,7 @@ export default function Page() {
       <main>
         {/* Hero */}
         <section className="relative">
-          <div
-            className="relative h-[430px] bg-cover bg-center sm:h-[500px] lg:h-[580px]"
-            style={{ backgroundImage: "url('/sportinuity-hero.png')" }}
-          >
-            {/* Small screens: full-width tint */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-r from-[#081924]/90 via-[#081924]/60 to-[#081924]/20 lg:hidden"
-            />
-            {/* Large screens: diagonal panel behind the headline */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-y-0 left-0 hidden w-[64%] bg-[#081924]/85 [clip-path:polygon(0_0,100%_0,74%_100%,0_100%)] lg:block"
-            />
-            <div className="relative mx-auto flex h-full max-w-[1850px] flex-col justify-center px-4 pb-16 sm:px-9">
-              <p className="text-sm font-bold uppercase tracking-[.2em] text-[#d0ee27]">
-                Sport travel, made simple
-              </p>
-              <h1 className="mt-4 max-w-2xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-                Move your team.
-                <br />
-                <span className="text-[#d0ee27]">Make the moment.</span>
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-white/85 sm:text-lg sm:leading-8">
-                Flights, accommodation, transport and on-the-ground support for
-                teams and delegations travelling to compete.
-              </p>
-            </div>
-          </div>
+          <HeroSlider slides={heroSlides} />
 
           {/* Tabs overlapping the hero, attached to the booking panel */}
           <div
